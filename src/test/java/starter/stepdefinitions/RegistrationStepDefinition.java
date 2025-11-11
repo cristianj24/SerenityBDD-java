@@ -1,0 +1,71 @@
+package starter.stepdefinitions;
+
+import io.cucumber.datatable.DataTable;
+import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
+import net.serenitybdd.screenplay.Actor;
+import net.serenitybdd.screenplay.actions.*;
+import starter.tasks.registration.CheckNewAccountCreate;
+import starter.tasks.registration.DoNotSendAllRequiredInformation;
+import starter.tasks.registration.RegisterUser;
+import starter.tasks.registration.ShouldSeeAllFieldsAreRquired;
+import starter.ui.registration.RegisterPage;
+
+import java.net.URISyntaxException;
+import java.util.List;
+
+
+public class RegistrationStepDefinition {
+    String expectedName = "";
+    String expectedLastName = "";
+    String expectedAge = "";
+    String expectedEmail = "";
+    String expectedCountry = "";
+
+    @Given("{actor} wants to sign up in the application")
+    public void pepitoWantsToSignUpInTheApplication(Actor actor) {
+
+        actor.attemptsTo(
+                Open.browserOn(new RegisterPage())
+        );
+    }
+
+    @When("{actor} send the required information to sign up")
+    public void pepitoSendTheRequiredInformationToSignUp(Actor actor, DataTable userInfo) throws URISyntaxException {
+        List<List<String>> rows = userInfo.asLists(String.class);
+        for (List<String> columns: rows){
+            expectedName = columns.get(0);
+            expectedLastName = columns.get(1);
+            expectedAge = columns.get(2);
+            expectedEmail = columns.get(3);
+            expectedCountry = columns.get(4);
+        }
+        actor.attemptsTo(
+                new RegisterUser(expectedName,expectedLastName,expectedAge,expectedEmail,expectedCountry)
+        );
+    }
+
+    @Then("{actor} should have a new account created")
+    public void pepitoShouldHaveANewAccountCreated(Actor actor) {
+        actor.attemptsTo(
+                new CheckNewAccountCreate(expectedName,expectedLastName)
+        );
+    }
+
+    @When("{actor} does not send the required information")
+    public void pepitoDoesNotSendTheRequiredInformation(Actor actor) {
+        actor.attemptsTo(
+                new DoNotSendAllRequiredInformation(expectedName,expectedLastName)
+        );
+    }
+
+    @Then("{actor} should be told all fields are required")
+    public void pepitoShouldBeToldAllFieldsAreRequired(Actor actor) {
+        actor.attemptsTo(
+                new ShouldSeeAllFieldsAreRquired()
+        );
+    }
+
+
+}
